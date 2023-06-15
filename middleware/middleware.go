@@ -5,7 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	myErrors "dbms/internal/models/errors"
-	httpUtils "dbms/internal/pkg/http_utils"
+	httpUtils "dbms/internal/pkg"
 )
 
 func HandlerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
