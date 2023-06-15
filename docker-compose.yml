@@ -1,0 +1,20 @@
+version: "3.7"
+
+services:
+  main_db:
+    container_name: "main_db"
+    image: postgres:latest
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=citext"
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./scripts:/docker-entrypoint-initdb.d
+      - ./configs/database:/etc/postgresql
+    ports:
+      - "5432:5432"
