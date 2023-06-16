@@ -1,4 +1,4 @@
-package model
+package models
 
 type User struct {
 	Nickname string `json:"nickname" db:"nickname"`

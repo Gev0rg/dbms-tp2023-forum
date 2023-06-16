@@ -9,9 +9,9 @@ import (
 
 type Repository interface {
 	CheckExistUserByNickname(ctx context.Context, nickname string) error
-	CreateUser(ctx context.Context, createUser model.User) error
-	UpdateUserByNickname(ctx context.Context, user model.User) (model.User, error)
-	GetUserByNickname(ctx context.Context, nickname string) (model.User, error)
+	CreateUser(ctx context.Context, createUser models.User) error
+	UpdateUserByNickname(ctx context.Context, user models.User) (models.User, error)
+	GetUserByNickname(ctx context.Context, nickname string) (models.User, error)
 }
 
 func NewUserMemoryRepository(db *sqlx.DB) Repository {
@@ -37,29 +37,29 @@ func (r repository) CheckExistUserByNickname(ctx context.Context, nickname strin
 	return nil
 }
 
-func (r repository) CreateUser(ctx context.Context, createUser model.User) error {
+func (r repository) CreateUser(ctx context.Context, createUser models.User) error {
 	_, err := r.db.NamedExecContext(ctx, `INSERT INTO user VALUES (:nickname, :fullname, :about, :email)`, createUser)
 	return err
 }
 
-func (r repository) GetUserByNickname(ctx context.Context, nickname string) (model.User, error) {
-	var user model.User
+func (r repository) GetUserByNickname(ctx context.Context, nickname string) (models.User, error) {
+	var user models.User
 
 	err := r.db.GetContext(ctx, &user, `SELECT * FROM user WHERE nickname=$1`, nickname)
 	if err != nil {
-		return model.User{}, err
+		return models.User{}, err
 	}
 
 	return user, nil
 }
 
-func (r repository) UpdateUserByNickname(ctx context.Context, user model.User) (model.User, error) {
-	var updatedUser model.User
+func (r repository) UpdateUserByNickname(ctx context.Context, user models.User) (models.User, error) {
+	var updatedUser models.User
 
 	err := r.db.GetContext(ctx, &updatedUser, `UPDATE user SET fullname=$1, about=$2, email=$3 WHERE nickname=$4 RETURNING *`,
 		user.FullName, user.About, user.Email, user.Nickname)
 	if err != nil {
-		return model.User{}, err
+		return models.User{}, err
 	}
 
 	return updatedUser, nil

@@ -13,7 +13,7 @@ type userHandler struct {
 }
 
 func (h userHandler) CreateUserHandler(ctx echo.Context) error {
-	var createUser model.User
+	var createUser models.User
 
 	err := ctx.Bind(&createUser)
 	if err != nil {
@@ -43,7 +43,7 @@ func (u *userHandler) GetUserHandler(ctx echo.Context) error {
 }
 
 func (u *userHandler) UpdateUserHandler(ctx echo.Context) error {
-	var user model.User
+	var user models.User
 	err := ctx.Bind(&user)
 
 	if err != nil {

@@ -1,4 +1,4 @@
-package model
+package models
 
 type Vote struct {
 	Nickname string `json:"nickname" db:"nickname"`

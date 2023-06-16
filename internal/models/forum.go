@@ -1,4 +1,4 @@
-package model
+package models
 
 type Forum struct {
 	Title   string `json:"title"   db:"title"`

@@ -7,9 +7,9 @@ import (
 )
 
 type Usecase interface {
-	CreateUser(ctx context.Context, createUser model.User) (model.User, error)
-	UpdateUserByNickname(ctx context.Context, user model.User) (model.User, error)
-	GetUserByNickname(ctx context.Context, nickname string) (model.User, error)
+	CreateUser(ctx context.Context, createUser models.User) (models.User, error)
+	UpdateUserByNickname(ctx context.Context, user models.User) (models.User, error)
+	GetUserByNickname(ctx context.Context, nickname string) (models.User, error)
 }
 
 type usecase struct {
@@ -20,33 +20,33 @@ func NewUserUsecase(userRepository user.Repository) Usecase {
 	return &usecase{userRepository: userRepository}
 }
 
-func (u usecase) CreateUser(ctx context.Context, user model.User) (model.User, error) {
+func (u usecase) CreateUser(ctx context.Context, user models.User) (models.User, error) {
 	err := u.userRepository.CheckExistUserByNickname(ctx, user.Nickname)
 	if err != nil {
-		return model.User{}, err
+		return models.User{}, err
 	}
 
 	err = u.userRepository.CreateUser(ctx, user)
 	if err != nil {
-		return model.User{}, err
+		return models.User{}, err
 	}
 
 	return user, nil
 }
 
-func (u usecase) UpdateUserByNickname(ctx context.Context, user model.User) (model.User, error) {
+func (u usecase) UpdateUserByNickname(ctx context.Context, user models.User) (models.User, error) {
 	updatedUser, err := u.userRepository.UpdateUserByNickname(ctx, user)
 	if err != nil {
-		return model.User{}, err
+		return models.User{}, err
 	}
 
 	return updatedUser, nil
 }
 
-func (u usecase) GetUserByNickname(ctx context.Context, nickname string) (model.User, error) {
+func (u usecase) GetUserByNickname(ctx context.Context, nickname string) (models.User, error) {
 	user, err := u.userRepository.GetUserByNickname(ctx, nickname)
 	if err != nil {
-		return model.User{}, err
+		return models.User{}, err
 	}
 
 	return user, nil
