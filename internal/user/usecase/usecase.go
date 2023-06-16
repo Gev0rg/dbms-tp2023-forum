@@ -16,10 +16,6 @@ type usecase struct {
 	userRepository user.Repository
 }
 
-func NewUserUsecase(userRepository user.Repository) Usecase {
-	return &usecase{userRepository: userRepository}
-}
-
 func (u usecase) CreateUser(ctx context.Context, user models.User) (models.User, error) {
 	err := u.userRepository.CheckExistUserByNickname(ctx, user.Nickname)
 	if err != nil {
@@ -50,4 +46,8 @@ func (u usecase) GetUserByNickname(ctx context.Context, nickname string) (models
 	}
 
 	return user, nil
+}
+
+func NewUsecase(userRepository user.Repository) Usecase {
+	return &usecase{userRepository: userRepository}
 }

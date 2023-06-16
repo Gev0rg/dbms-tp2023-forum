@@ -31,7 +31,7 @@ func (h userHandler) CreateUserHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, user)
 }
 
-func (u *userHandler) GetUserHandler(ctx echo.Context) error {
+func (u userHandler) GetUserHandler(ctx echo.Context) error {
 	nickname := ctx.Param("nickname")
 
 	user, err := u.userUsecase.GetUserByNickname(context.TODO(), nickname)
@@ -64,13 +64,9 @@ func (u *userHandler) UpdateUserHandler(ctx echo.Context) error {
 func NewHandler(e *echo.Echo, userUsecase user.Usecase) userHandler {
 	handler := userHandler{userUsecase: userUsecase}
 
-	getUserUrl := "/user/:nickname/profile"
-	createUserUrl := "/user/:nickname/create"
-	editUserUrl := "/user/:nickname/profile"
-
-	e.GET(getUserUrl, handler.CreateUserHandler)
-	e.POST(createUserUrl, handler.GetUserHandler)
-	e.POST(editUserUrl, handler.UpdateUserHandler)
+	e.GET("/user/:nickname/profile", handler.CreateUserHandler)
+	e.POST("/user/:nickname/create", handler.GetUserHandler)
+	e.POST("/user/:nickname/profile", handler.UpdateUserHandler)
 
 	return handler
 

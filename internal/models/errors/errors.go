@@ -10,14 +10,19 @@ var (
 
 	ErrUserIsAlreadyCreated       = errors.New("The user is already created")
 	ErrSessionIsAlreadyCreated    = errors.New("The session is already created")
-	ErrEmailIsAlreadyRegistered    = errors.New("The email is already registered")
-	ErrUsernameIsAlreadyRegistered = errors.New("The username is already registered")
+	ErrEmailIsAlreadyRegistred    = errors.New("The email is already registered")
+	ErrUsernameIsAlreadyRegistred = errors.New("The username is already registered")
 
 	ErrCookieNotFound = errors.New("Cookie not found")
 
 	ErrSessionNotFound   = errors.New("Session not found")
+	ErrThreadNotFound    = errors.New("Thread not found")
 	ErrUserNotFound      = errors.New("User not found")
+	ErrForumNotFound     = errors.New("Forum not found")
 	ErrIncorrectPassword = errors.New("Incorrect password")
+
+	ErrThreadIsAlreadyExisted = errors.New("Thread is already existed")
+	ErrForumIsAlreadyExisted  = errors.New("Forum is already existed")
 
 	ErrInternal = errors.New("Internal error")
 )

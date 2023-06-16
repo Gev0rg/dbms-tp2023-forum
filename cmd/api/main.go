@@ -88,7 +88,7 @@ func main() {
 	// postUsecase := postUsecase.NewPostUsecase(postRepository)
 	// serviceUsecase := serviceUsecase.NewServiceUsecase(serviceRepository)
 	// threadUsecase := threadUsecase.NewThreadUsecase(threadRepository)
-	userUsecase := userUsecase.NewUserUsecase(userRepository)
+	userUsecase := userUsecase.NewUsecase(userRepository)
 
 	// forumHandler.NewForumHandler(e, forumUsecase)
 	// postHandler.NewPostHandler(e, postUsecase)

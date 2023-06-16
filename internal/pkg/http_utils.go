@@ -1,9 +1,9 @@
 package http_utils
 
 import (
-	myErrors "dbms/internal/models/errors"
 	"errors"
 	"net/http"
+	myErrors "dbms/internal/models/errors"
 )
 
 func StatusCode(err error) int {
@@ -14,9 +14,9 @@ func StatusCode(err error) int {
 		return http.StatusBadRequest
 	case errors.Is(err, myErrors.ErrInvalidPassword):
 		return http.StatusBadRequest
-	case errors.Is(err, myErrors.ErrEmailIsAlreadyRegistered):
+	case errors.Is(err, myErrors.ErrEmailIsAlreadyRegistred):
 		return http.StatusConflict
-	case errors.Is(err, myErrors.ErrUsernameIsAlreadyRegistered):
+	case errors.Is(err, myErrors.ErrUsernameIsAlreadyRegistred):
 		return http.StatusConflict
 	case errors.Is(err, myErrors.ErrSessionIsAlreadyCreated):
 		return http.StatusConflict

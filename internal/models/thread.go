@@ -12,3 +12,10 @@ type Thread struct {
 	Slug    string    `json:"slug" db:"slug"`
 	Created time.Time `json:"created" db:"created"`
 }
+
+type CreateThread struct {
+	Title   string    `json:"title"`
+	Author  string    `json:"author"`
+	Message string    `json:"message"`
+	Created time.Time `json:"created"`
+}
