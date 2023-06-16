@@ -15,8 +15,8 @@ type Usecase interface {
 	CreateForumThread(ctx context.Context, slug string, thread models.Thread) (models.Thread, error)
 
 	GetForumBySlug(ctx context.Context, slug string) (models.Forum, error)
-	GetForumUsersBySlug(ctx context.Context, slug string, limit int64, since string, desc bool) ([]models.User, error)
-	GetForumThreadsBySlug(ctx context.Context, slug string, limit int64, since string, desc bool) ([]models.Thread, error)
+	GetForumUsersBySlug(ctx context.Context, forumThreadsInfo models.GetForumUsers) ([]models.User, error)
+	GetForumThreadsBySlug(ctx context.Context, forumThreadsInfo models.GetForumThreads) ([]models.Thread, error)
 }
 
 type usecase struct {
@@ -25,7 +25,7 @@ type usecase struct {
 	threadRepository thread.Repository
 }
 
-func (u *usecase) Forum(ctx context.Context, forum models.Forum) (models.Forum, error) {
+func (u *usecase) CreateForum(ctx context.Context, forum models.Forum) (models.Forum, error) {
 	err := u.userRepository.CheckExistUserByNickname(ctx, forum.User)
 	if err != nil {
 		return models.Forum{}, err
@@ -50,22 +50,73 @@ func (u *usecase) Forum(ctx context.Context, forum models.Forum) (models.Forum, 
 	return forum, nil
 }
 
-// func (u *usecase) CreateForumThread(ctx context.Context, slug string, thread models.Thread) (models.Thread, error) {
+func (u *usecase) CreateForumThread(ctx context.Context, slug string, thread models.Thread) (models.Thread, error) {
+	err := u.userRepository.CheckExistUserByNickname(ctx, thread.Author)
+	if err!= nil {
+        return models.Thread{}, err
+    }
 
-// }
+	err = u.forumRepository.CheckExistForumBySlug(ctx, slug)
+	if err!= nil {
+        return models.Thread{}, err
+    }
 
-// func (u *usecase) GetForumBySlug(ctx context.Context, slug string) (models.Forum, error) {
-	
-// }
+	existThread, err := u.threadRepository.GetThreadBySlug(ctx, slug)
+	if err == nil {
+        return existThread, myErrors.ErrThreadIsAlreadyExisted
+    }
 
-// func (u *usecase) GetForumUsersBySlug(ctx context.Context, slug string, limit int64, since string, desc bool) ([]models.User, error) {
+	if err != nil {
+		if !errors.Is(err, myErrors.ErrThreadNotFound) {
+            return models.Thread{}, err
+        }
+	}
+    
+	thread, err = u.threadRepository.CreateThread(ctx, thread)
+	if err!= nil {
+        return models.Thread{}, err
+    }
 
-// }
+	return thread, nil
+}
 
-// func (u *usecase) GetForumThreadsBySlug(ctx context.Context, slug string, limit int64, since string, desc bool) ([]models.Thread, error) {
+func (u *usecase) GetForumBySlug(ctx context.Context, slug string) (models.Forum, error) {
+	forum, err := u.forumRepository.GetForumBySlug(ctx, slug)
+	if err != nil {
+		return models.Forum{}, err
+	}
+		
+	return forum, nil
+}
 
-// }
+func (u *usecase) GetForumUsersBySlug(ctx context.Context, forumUsersInfo models.GetForumUsers) ([]models.User, error) {
+	err := u.forumRepository.CheckExistForumBySlug(ctx, forumUsersInfo.Slug)
+	if err!= nil {
+        return []models.User{}, err
+    }
 
-// func NewUsecase (forumRepository forum.Repository) Usecase {
-// 	return &usecase{forumRepository: forumRepository}
-// }
+	users, err := u.forumRepository.GetForumUsers(ctx, forumUsersInfo)
+	if err!= nil {
+        return []models.User{}, err
+    }
+
+	return users, nil
+}
+
+func (u *usecase) GetForumThreadsBySlug(ctx context.Context, forumThreadsInfo models.GetForumThreads) ([]models.Thread, error) {
+	err := u.forumRepository.CheckExistForumBySlug(ctx, forumThreadsInfo.Slug)
+	if err!= nil {
+        return []models.Thread{}, err
+    }
+
+	threads, err := u.forumRepository.GetForumThreads(ctx, forumThreadsInfo)
+	if err!= nil {
+        return []models.Thread{}, err
+    }
+
+	return threads, nil
+}
+
+func NewUsecase(forumRepository forum.Repository, userRepository user.Repository, threadRepository thread.Repository) Usecase {
+	return &usecase{forumRepository: forumRepository, userRepository: userRepository, threadRepository: threadRepository}
+}

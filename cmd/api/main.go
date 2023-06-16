@@ -82,7 +82,7 @@ func main() {
 	// postRepository := postRepository.NewPostMemoryRepository(db)
 	// serviceRepository := serviceRepository.NewServiceMemoryRepository(db)
 	// threadRepository := threadRepository.NewThreadMemoryRepository(db)
-	userRepository := userRepository.NewUserMemoryRepository(db)
+	userRepository := userRepository.NewRepository(db)
 
 	// forumUsecase := forumUsecase.NewForumUsecase(forumRepository, userRepository)
 	// postUsecase := postUsecase.NewPostUsecase(postRepository)

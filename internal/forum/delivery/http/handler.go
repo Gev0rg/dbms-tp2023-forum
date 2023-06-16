@@ -47,6 +47,7 @@ func (h *forumHandler) CreateForumThreadHandler(ctx echo.Context) error {
 		Title: createForumThread.Title,
         Author: createForumThread.Author,
         Message: createForumThread.Message,
+		Slug: slug,
 		Created: createForumThread.Created,
 	})
 	if err!= nil {
@@ -83,7 +84,12 @@ func (h *forumHandler) GetForumUsersHandler(ctx echo.Context) error {
 		return err
 	}
 
-	users, err := h.forumUsecase.GetForumUsersBySlug(context.TODO(), slug, limit, since, desc)
+	users, err := h.forumUsecase.GetForumUsersBySlug(context.TODO(), models.GetForumUsers{
+		Slug: slug,
+		Limit: limit,
+		Since: since,
+        Desc: desc,
+	})
 	if err != nil {
         return err
     }
@@ -107,7 +113,12 @@ func (h *forumHandler) GetForumThreadsHandler(ctx echo.Context) error {
         return err
     }
 
-    threads, err := h.forumUsecase.GetForumThreadsBySlug(context.TODO(), slug, limit, since, desc)
+    threads, err := h.forumUsecase.GetForumThreadsBySlug(context.TODO(), models.GetForumThreads{
+		Slug: slug,
+		Limit: limit,
+		Since: since,
+        Desc: desc,
+	})
     if err!= nil {
         return err
     }
