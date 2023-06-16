@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	myErrors "dbms/internal/models/errors"
+	httpUtils "dbms/internal/pkg"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
-	myErrors "dbms/internal/models/errors"
-	httpUtils "dbms/internal/pkg"
 )
 
 func HandlerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
-	"github.com/jmoiron/sqlx"
 	"dbms/internal/models"
 	myErrors "dbms/internal/models/errors"
+	"github.com/jmoiron/sqlx"
 )
 
 type Repository interface {

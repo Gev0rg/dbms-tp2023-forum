@@ -1,12 +1,12 @@
 package main
 
 import (
+	"dbms/configs"
+	"dbms/internal/middleware"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"dbms/internal/middleware"
-	"dbms/configs"
 
 	// forumRepository "dbms/internal/forum/repository"
 	// postRepository "dbms/internal/post/repository"

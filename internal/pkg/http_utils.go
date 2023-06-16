@@ -1,9 +1,9 @@
 package http_utils
 
 import (
+	myErrors "dbms/internal/models/errors"
 	"errors"
 	"net/http"
-	myErrors "dbms/internal/models/errors"
 )
 
 func StatusCode(err error) int {

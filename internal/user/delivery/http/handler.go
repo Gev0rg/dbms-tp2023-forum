@@ -2,10 +2,10 @@ package http
 
 import (
 	"context"
-	"github.com/labstack/echo/v4"
-	"net/http"
 	"dbms/internal/models"
 	user "dbms/internal/user/usecase"
+	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type userHandler struct {
