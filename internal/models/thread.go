@@ -19,3 +19,8 @@ type CreateThread struct {
 	Message string    `json:"message"`
 	Created time.Time `json:"created"`
 }
+
+type UpdateThread struct {
+	Title   string    `json:"title"`
+	Message string    `json:"message"`
+}

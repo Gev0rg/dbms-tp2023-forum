@@ -12,3 +12,14 @@ type Post struct {
 	Thread   int       `json:"thread_id" db:"thread_id"`
 	Created  time.Time `json:"created" db:"created"`
 }
+
+type UpdatePost struct {
+	Message  string    `json:"message" db:"message"`
+}
+
+type FullPost struct {
+	Post Post `json:"post"`
+	Author User `json:"author"`
+	Thread Thread `json:"thread"`
+	Forum Forum `json:"forum"`
+}
