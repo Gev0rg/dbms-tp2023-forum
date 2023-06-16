@@ -10,8 +10,8 @@ var (
 
 	ErrUserIsAlreadyCreated       = errors.New("The user is already created")
 	ErrSessionIsAlreadyCreated    = errors.New("The session is already created")
-	ErrEmailIsAlreadyRegistred    = errors.New("The email is already registered")
-	ErrUsernameIsAlreadyRegistred = errors.New("The username is already registered")
+	ErrEmailIsAlreadyRegistered    = errors.New("The email is already registered")
+	ErrUsernameIsAlreadyRegistered = errors.New("The username is already registered")
 
 	ErrCookieNotFound = errors.New("Cookie not found")
 

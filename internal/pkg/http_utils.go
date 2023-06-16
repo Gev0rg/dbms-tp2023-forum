@@ -14,9 +14,9 @@ func StatusCode(err error) int {
 		return http.StatusBadRequest
 	case errors.Is(err, myErrors.ErrInvalidPassword):
 		return http.StatusBadRequest
-	case errors.Is(err, myErrors.ErrEmailIsAlreadyRegistred):
+	case errors.Is(err, myErrors.ErrEmailIsAlreadyRegistered):
 		return http.StatusConflict
-	case errors.Is(err, myErrors.ErrUsernameIsAlreadyRegistred):
+	case errors.Is(err, myErrors.ErrUsernameIsAlreadyRegistered):
 		return http.StatusConflict
 	case errors.Is(err, myErrors.ErrSessionIsAlreadyCreated):
 		return http.StatusConflict
