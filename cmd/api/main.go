@@ -8,22 +8,22 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 
-	// forumRepository "dbms/internal/forum/repository"
-	// postRepository "dbms/internal/post/repository"
-	// serviceRepository "dbms/internal/service/repository"
-	// threadRepository "dbms/internal/thread/repository"
+	forumRepository "dbms/internal/forum/repository"
+	postRepository "dbms/internal/post/repository"
+	serviceRepository "dbms/internal/service/repository"
+	threadRepository "dbms/internal/thread/repository"
 	userRepository "dbms/internal/user/repository"
 
-	// forumUsecase "dbms/internal/forum/usecase"
-	// postUsecase "dbms/internal/post/usecase"
-	// serviceUsecase "dbms/internal/service/usecase"
-	// threadUsecase "dbms/internal/thread/usecase"
+	forumUsecase "dbms/internal/forum/usecase"
+	postUsecase "dbms/internal/post/usecase"
+	serviceUsecase "dbms/internal/service/usecase"
+	threadUsecase "dbms/internal/thread/usecase"
 	userUsecase "dbms/internal/user/usecase"
 
-	// forumHandler "dbms/internal/forum/delivery/http"
-	// postHandler "dbms/internal/post/delivery/http"
-	// serviceHandler "dbms/internal/service/delivery/http"
-	// threadHandler "dbms/internal/thread/delivery/http"
+	forumHandler "dbms/internal/forum/delivery/http"
+	postHandler "dbms/internal/post/delivery/http"
+	serviceHandler "dbms/internal/service/delivery/http"
+	threadHandler "dbms/internal/thread/delivery/http"
 	userHandler "dbms/internal/user/delivery/http"
 
 	"github.com/jmoiron/sqlx"
@@ -78,22 +78,22 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.HandlerMiddleware)
 
-	// forumRepository := forumRepository.NewForumMemoryRepository(db)
-	// postRepository := postRepository.NewPostMemoryRepository(db)
-	// serviceRepository := serviceRepository.NewServiceMemoryRepository(db)
-	// threadRepository := threadRepository.NewThreadMemoryRepository(db)
+	forumRepository := forumRepository.NewRepository(db)
+	postRepository := postRepository.NewRepository(db)
+	serviceRepository := serviceRepository.NewRepository(db)
+	threadRepository := threadRepository.NewRepository(db)
 	userRepository := userRepository.NewRepository(db)
 
-	// forumUsecase := forumUsecase.NewForumUsecase(forumRepository, userRepository)
-	// postUsecase := postUsecase.NewPostUsecase(postRepository)
-	// serviceUsecase := serviceUsecase.NewServiceUsecase(serviceRepository)
-	// threadUsecase := threadUsecase.NewThreadUsecase(threadRepository)
+	forumUsecase := forumUsecase.NewUsecase(forumRepository, userRepository, threadRepository)
+	postUsecase := postUsecase.NewUsecase(postRepository)
+	serviceUsecase := serviceUsecase.NewUsecase(serviceRepository)
+	threadUsecase := threadUsecase.NewUsecase(threadRepository)
 	userUsecase := userUsecase.NewUsecase(userRepository)
 
-	// forumHandler.NewForumHandler(e, forumUsecase)
-	// postHandler.NewPostHandler(e, postUsecase)
-	// serviceHandler.NewServiceHandler(e, serviceUsecase)
-	// threadHandler.NewThreadHandler(e, threadUsecase)
+	forumHandler.NewHandler(e, forumUsecase)
+	postHandler.NewHandler(e, postUsecase)
+	serviceHandler.NewHandler(e, serviceUsecase)
+	threadHandler.NewHandler(e, threadUsecase)
 	userHandler.NewHandler(e, userUsecase)
 
 	e.Logger.Fatal(e.Start(config.Server.Port))

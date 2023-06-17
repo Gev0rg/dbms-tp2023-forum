@@ -29,7 +29,7 @@ func (u *usecase) GetStatus(ctx context.Context) (models.Status, error) {
 	return status, err
 }
 
-func New(serviceRepository service.Repository) Usecase {
+func NewUsecase(serviceRepository service.Repository) Usecase {
 	return &usecase{serviceRepository: serviceRepository}
 }
 
