@@ -13,6 +13,12 @@ type Post struct {
 	Created  time.Time `json:"created" db:"created"`
 }
 
+type CreatePost struct {
+	Parent  int    `json:"parent"`
+	Author  string `json:"author"`
+	Message string `json:"message"`
+}
+
 type UpdatePost struct {
 	Message  string    `json:"message"`
 }

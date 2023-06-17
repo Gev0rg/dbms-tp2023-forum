@@ -24,3 +24,19 @@ type UpdateThread struct {
 	Title   string    `json:"title"`
 	Message string    `json:"message"`
 }
+
+type GetThreadPostsById struct {
+	Id    int64 `json:"id"`
+	Limit int64  `json:"limit"`
+	Since string `json:"since"`
+	Sort  string `json:"sort"`
+	Desc  bool   `json:"desc"`
+}
+
+type GetThreadPostsBySlug struct {
+	Slug  string `json:"slug"`
+	Limit int64  `json:"limit"`
+	Since string `json:"since"`
+	Sort  string `json:"sort"`
+	Desc  bool   `json:"desc"`
+}

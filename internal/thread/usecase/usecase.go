@@ -1,23 +1,23 @@
 package usecase
 
 import (
-	"github.com/labstack/echo/v4"
+	"context"
 	"dbms/internal/models"
 )
 
 type Usecase interface {
-	CreatePostsById(ctx echo.Context, id uint64) ([]models.Post, error)
-	CreatePostsBySlug(ctx echo.Context, slug string) ([]models.Post, error)
+	CreatePostsById(ctx context.Context, id int64, posts []models.CreatePost) ([]models.Post, error)
+	CreatePostsBySlug(ctx context.Context, slug string, posts []models.CreatePost) ([]models.Post, error)
 
-	EditThreadById(ctx echo.Context, thread models.Thread, id uint64) (models.Thread, error)
-	EditThreadBySlug(ctx echo.Context, thread models.Thread, slug string) (models.Thread, error)
+	EditThreadById(ctx context.Context, id int64, thread models.UpdateThread) (models.Thread, error)
+	EditThreadBySlug(ctx context.Context, slug string, thread models.UpdateThread) (models.Thread, error)
 
-	VoteById(ctx echo.Context, id uint64) (models.Thread, error)
-	VoteBySlug(ctx echo.Context, slug string) (models.Thread, error)
+	VoteById(ctx context.Context, id int64, vote models.Vote) (models.Thread, error)
+	VoteBySlug(ctx context.Context, slug string, vote models.Vote) (models.Thread, error)
 
-	GetThreadById(ctx echo.Context, id uint64) (models.Thread, error)
-	GetThreadBySlug(ctx echo.Context, slug string) (models.Thread, error)
+	GetThreadById(ctx context.Context, id int64) (models.Thread, error)
+	GetThreadBySlug(ctx context.Context, slug string) (models.Thread, error)
 
-	GetThreadPostsById(ctx echo.Context, id uint64) ([]models.Post, error)
-	GetThreadPostsBySlug(ctx echo.Context, slug string) ([]models.Post, error)
+	GetThreadPostsById(ctx context.Context, id int64, threadPostsInfo models.GetThreadPostsById) ([]models.Post, error)
+	GetThreadPostsBySlug(ctx context.Context, slug string, threadPostsInfo models.GetThreadPostsBySlug) ([]models.Post, error)
 }
