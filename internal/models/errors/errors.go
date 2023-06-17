@@ -19,6 +19,7 @@ var (
 	ErrThreadNotFound    = errors.New("Thread not found")
 	ErrUserNotFound      = errors.New("User not found")
 	ErrForumNotFound     = errors.New("Forum not found")
+	ErrPostNotFound		 = errors.New("Post not found")
 	ErrIncorrectPassword = errors.New("Incorrect password")
 
 	ErrThreadIsAlreadyExisted = errors.New("Thread is already existed")
