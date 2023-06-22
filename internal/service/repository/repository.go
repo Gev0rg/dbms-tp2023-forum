@@ -1,42 +1,45 @@
 package repository
 
 import (
-	"context"
-	"dbms/internal/models"
-	"github.com/jmoiron/sqlx"
+	"database/sql"
+	myerr "forum/internal/error"
+	"forum/internal/models"
+	"forum/internal/service"
+	"log"
 )
 
-type Repository interface {
-	Clear(ctx context.Context) error
-	GetStatus(ctx context.Context) (models.Status, error)
+type ServiceRepository struct {
+	db     *sql.DB
+	logger *log.Logger
 }
 
-type repository struct {
-	db *sqlx.DB
+func NewServiceRepository(db *sql.DB) service.ServiceRepository {
+	return &ServiceRepository{
+		db:     db,
+		logger: log.Default(),
+	}
 }
 
-func (r repository) Clear(ctx context.Context) error {
-	_, err := r.db.ExecContext(ctx, `TRUNCATE TABLE users, forums, threads, posts, users_votes, users_forums CASCADE;`)
-	return err
+func (sr *ServiceRepository) SelectServiceStatus() (*models.Service, error) {
+	srvc := &models.Service{}
+	row := sr.db.QueryRow(
+		`SELECT *
+		 FROM 	(SELECT COUNT(nickname) FROM users) as user_count,
+		 		(SELECT COUNT(slug) FROM forum) as forum_count,
+				(SELECT COUNT(id) FROM threads) as thread_count,
+				(SELECT COUNT(id) FROM posts) as post_count`)
+	err := row.Scan(&srvc.User, &srvc.Forum, &srvc.Thread, &srvc.Post)
+	if err != nil {
+		sr.logger.Println(err.Error())
+		return nil, myerr.InternalDbError
+	}
+	return srvc, nil
 }
 
-func (r repository) GetStatus(ctx context.Context) (models.Status, error) {
-	var status models.Status
-
-	err := r.db.GetContext(ctx, &status, `
-		SELECT 
-			(SELECT COUNT(*) FROM forums) AS forums,
-			(SELECT COUNT(*) FROM posts) AS posts,
-            (SELECT COUNT(*) FROM threads) AS threads,
-            (SELECT COUNT(*) FROM users) AS users
-	`)
-	if err!= nil {
-        return models.Status{}, err
-    }
-
-	return status, nil
-}
-
-func NewRepository(db *sqlx.DB) Repository {
-	return &repository{db: db}
+func (sr *ServiceRepository) ClearService() error {
+	_, err := sr.db.Exec("TRUNCATE users, forum, threads, posts, forum_users, votes;")
+	if err != nil {
+		sr.logger.Panicln(err.Error())
+	}
+	return nil
 }

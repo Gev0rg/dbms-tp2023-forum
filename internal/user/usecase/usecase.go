@@ -1,53 +1,64 @@
 package usecase
 
 import (
-	"context"
-	"dbms/internal/models"
-	user "dbms/internal/user/repository"
+	myerr "forum/internal/error"
+	"forum/internal/models"
+	"forum/internal/user"
+	"log"
 )
 
-type Usecase interface {
-	CreateUser(ctx context.Context, createUser models.User) (models.User, error)
-	UpdateUserByNickname(ctx context.Context, user models.User) (models.User, error)
-	GetUserByNickname(ctx context.Context, nickname string) (models.User, error)
+type UserUsecase struct {
+	repo   user.UserRepository
+	logger *log.Logger
 }
 
-type usecase struct {
-	userRepository user.Repository
+func NewUserUsecase(repo user.UserRepository) user.UserUsecase {
+	return &UserUsecase{
+		repo:   repo,
+		logger: log.Default(),
+	}
 }
 
-func (u usecase) CreateUser(ctx context.Context, user models.User) (models.User, error) {
-	err := u.userRepository.CheckExistUserByNickname(ctx, user.Nickname)
-	if err != nil {
-		return models.User{}, err
+func (uu *UserUsecase) GetUser(nickname string) (*models.User, error) {
+	user, err := uu.repo.SelectUser(nickname)
+	return user, err
+}
+
+func (uu *UserUsecase) CreateUser(user *models.User) ([]*models.User, bool, error) {
+	err := uu.repo.InsertUser(user)
+	users := make([]*models.User, 0)
+
+	switch err {
+	case nil:
+		users = append(users, user)
+		return append(users, user), true, err
+	case myerr.NicknameAlreadyExist:
+		users, err = uu.repo.SelectUsersIfExists(user.Nickname, user.Email)
+		return users, false, err
+	case myerr.EmailAlreadyExist:
+		users, err = uu.repo.SelectUsersIfExists(user.Nickname, user.Email)
+		return users, false, err
+	default:
+		return nil, false, err
+	}
+}
+
+func (uu *UserUsecase) UpdateUser(user *models.User) (*models.User, error) {
+	userOld, err := uu.repo.SelectUser(user.Nickname)
+	if err == nil {
+		if user.Fullname == "" {
+			user.Fullname = userOld.Fullname
+		}
+
+		if user.About == "" {
+			user.About = userOld.About
+		}
+
+		if user.Email == "" {
+			user.Email = userOld.Email
+		}
 	}
 
-	err = u.userRepository.CreateUser(ctx, user)
-	if err != nil {
-		return models.User{}, err
-	}
-
-	return user, nil
-}
-
-func (u usecase) UpdateUserByNickname(ctx context.Context, user models.User) (models.User, error) {
-	updatedUser, err := u.userRepository.UpdateUserByNickname(ctx, user)
-	if err != nil {
-		return models.User{}, err
-	}
-
-	return updatedUser, nil
-}
-
-func (u usecase) GetUserByNickname(ctx context.Context, nickname string) (models.User, error) {
-	user, err := u.userRepository.GetUserByNickname(ctx, nickname)
-	if err != nil {
-		return models.User{}, err
-	}
-
-	return user, nil
-}
-
-func NewUsecase(userRepository user.Repository) Usecase {
-	return &usecase{userRepository: userRepository}
+	err = uu.repo.UpdateUser(user)
+	return user, err
 }

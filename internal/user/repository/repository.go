@@ -2,65 +2,149 @@ package repository
 
 import (
 	"context"
-	"dbms/internal/models"
-	myErrors "dbms/internal/models/errors"
-	"github.com/jmoiron/sqlx"
+	"database/sql"
+	myerr "forum/internal/error"
+	"forum/internal/models"
+	"forum/internal/user"
+	"log"
+	"regexp"
 )
 
-type Repository interface {
-	CheckExistUserByNickname(ctx context.Context, nickname string) error
-	CreateUser(ctx context.Context, createUser models.User) error
-	UpdateUserByNickname(ctx context.Context, user models.User) (models.User, error)
-	GetUserByNickname(ctx context.Context, nickname string) (models.User, error)
+type UserRepository struct {
+	db     *sql.DB
+	logger *log.Logger
 }
 
-type repository struct {
-	db *sqlx.DB
+func NewUserRepository(db *sql.DB) user.UserRepository {
+	return &UserRepository{
+		db:     db,
+		logger: log.Default(),
+	}
 }
 
-func (r repository) CheckExistUserByNickname(ctx context.Context, nickname string) error {
-	var exists bool
-
-	err := r.db.GetContext(ctx, &exists, "SELECT EXISTS(SELECT 1 FROM users WHERE LOWER(nickname) = LOWER($1))", nickname)
+func (ur *UserRepository) InsertUser(user *models.User) error {
+	tx, err := ur.db.BeginTx(context.Background(), &sql.TxOptions{})
 	if err != nil {
-		return err
+		return myerr.InternalDbError
 	}
 
-	if !exists {
-		return myErrors.ErrUserNotFound
+	row := tx.QueryRow(
+		"INSERT INTO users (nickname, fullname, about, email) VALUES ($1, $2, $3, $4) RETURNING nickname, fullname, about, email;",
+		user.Nickname, user.Fullname, user.About, user.Email,
+	)
+
+	err = row.Scan(&user.Nickname, &user.Fullname, &user.About, &user.Email)
+
+	if err != nil {
+		rollbackError := tx.Rollback()
+		if rollbackError != nil {
+			return myerr.RollbackError
+		}
+
+		res, _ := regexp.Match(".*users_pkey.*", []byte(err.Error()))
+		if res {
+			return myerr.NicknameAlreadyExist
+		}
+
+		res, _ = regexp.Match(".*users_email_key.*", []byte(err.Error()))
+		if res {
+			return myerr.EmailAlreadyExist
+		}
+
+		ur.logger.Printf(err.Error())
+		return myerr.InternalDbError
 	}
 
+	err = tx.Commit()
+	if err != nil {
+		return myerr.CommitError
+	}
 	return nil
 }
 
-func (r repository) CreateUser(ctx context.Context, createUser models.User) error {
-	_, err := r.db.NamedExecContext(ctx, `INSERT INTO users VALUES (:nickname, :fullname, :about, :email)`, createUser)
-	return err
+func (ur *UserRepository) UpdateUser(user *models.User) error {
+	tx, err := ur.db.BeginTx(context.Background(), &sql.TxOptions{})
+	if err != nil {
+		return myerr.InternalDbError
+	}
+
+	row := tx.QueryRow(
+		"UPDATE users SET fullname = $2, about = $3, email = $4 WHERE nickname = $1 RETURNING nickname, fullname, about, email;",
+		user.Nickname, user.Fullname, user.About, user.Email,
+	)
+
+	err = row.Scan(&user.Nickname, &user.Fullname, &user.About, &user.Email)
+	if err != nil {
+		rollbackError := tx.Rollback()
+		if rollbackError != nil {
+			return myerr.RollbackError
+		}
+
+		res, _ := regexp.Match(".*no rows in result set.*", []byte(err.Error()))
+		if res {
+			return myerr.NoRows
+		}
+
+		res, _ = regexp.Match(".*users_email_key.*", []byte(err.Error()))
+		if res {
+			return myerr.EmailAlreadyExist
+		}
+
+		ur.logger.Printf(err.Error())
+		return myerr.InternalDbError
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return myerr.CommitError
+	}
+	return nil
 }
 
-func (r repository) GetUserByNickname(ctx context.Context, nickname string) (models.User, error) {
-	var user models.User
+func (ur *UserRepository) SelectUser(nickname string) (*models.User, error) {
+	row := ur.db.QueryRow(
+		"SELECT nickname, fullname, about, email FROM users WHERE nickname = $1",
+		nickname,
+	)
 
-	err := r.db.GetContext(ctx, &user, `SELECT * FROM users WHERE nickname=$1`, nickname)
+	user := &models.User{}
+	err := row.Scan(&user.Nickname, &user.Fullname, &user.About, &user.Email)
 	if err != nil {
-		return models.User{}, err
+		res, _ := regexp.Match(".*no rows in result set.*", []byte(err.Error()))
+		if res {
+			return nil, myerr.NoRows
+		}
+	}
+
+	if err != nil {
+		ur.logger.Printf(err.Error())
+		return nil, myerr.InternalDbError
 	}
 
 	return user, nil
 }
 
-func (r repository) UpdateUserByNickname(ctx context.Context, user models.User) (models.User, error) {
-	var updatedUser models.User
-
-	err := r.db.GetContext(ctx, &updatedUser, `UPDATE users SET fullname=$1, about=$2, email=$3 WHERE nickname=$4 RETURNING *`,
-		user.FullName, user.About, user.Email, user.Nickname)
+func (ur *UserRepository) SelectUsersIfExists(nickname string, email string) ([]*models.User, error) {
+	rows, err := ur.db.Query(
+		"SELECT nickname, fullname, about, email FROM users WHERE nickname = $1 OR email = $2;",
+		nickname, email,
+	)
 	if err != nil {
-		return models.User{}, err
+		ur.logger.Printf(err.Error())
+		return nil, myerr.InternalDbError
+	}
+	defer rows.Close()
+
+	users := make([]*models.User, 0)
+	for rows.Next() {
+		user := &models.User{}
+		err = rows.Scan(&user.Nickname, &user.Fullname, &user.About, &user.Email)
+		if err != nil {
+			ur.logger.Printf(err.Error())
+			return nil, myerr.InternalDbError
+		}
+		users = append(users, user)
 	}
 
-	return updatedUser, nil
-}
-
-func NewRepository(db *sqlx.DB) Repository {
-	return &repository{db: db}
+	return users, nil
 }

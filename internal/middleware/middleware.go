@@ -1,28 +1,10 @@
 package middleware
 
-import (
-	myErrors "dbms/internal/models/errors"
-	httpUtils "dbms/internal/pkg"
-	"github.com/labstack/echo/v4"
-	log "github.com/sirupsen/logrus"
-	"math/rand"
-)
+import "net/http"
 
-func HandlerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(ctx echo.Context) error {
-		requestId := rand.Int63()
-		log.Info("Incoming request: ", ctx.Request().URL, ", ip: ", ctx.RealIP(), ", method: ", ctx.Request().Method, ", request_id: ", requestId)
-		if err := next(ctx); err != nil {
-			log.Error("Error: ", err, ", request_id: ", requestId)
-			statusCode := httpUtils.StatusCode(err)
-			if statusCode == 500 {
-				return ctx.JSON(statusCode, myErrors.ErrInternal)
-			}
-
-			return ctx.JSON(statusCode, err)
-		}
-
-		log.Info("HTTP code: ", ctx.Response().Status, ", request_id: ", requestId)
-		return nil
-	}
+func ContentTypeMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		next.ServeHTTP(w, r)
+	})
 }

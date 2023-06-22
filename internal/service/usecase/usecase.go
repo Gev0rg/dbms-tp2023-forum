@@ -1,35 +1,26 @@
 package usecase
 
 import (
-	"context"
-	"dbms/internal/models"
-	service "dbms/internal/service/repository"
+	"forum/internal/models"
+	"forum/internal/service"
 )
 
-type Usecase interface {
-	Clear(ctx context.Context) error
-	GetStatus(ctx context.Context) (models.Status, error)
+type ServiceUsecase struct {
+	repo service.ServiceRepository
 }
 
-type usecase struct {
-	serviceRepository service.Repository
+func NewServiceUsecase(repo service.ServiceRepository) service.ServiceUsecase {
+	return &ServiceUsecase{
+		repo: repo,
+	}
 }
 
-func (u *usecase) Clear(ctx context.Context) error {
-	err := u.serviceRepository.Clear(ctx)
+func (su *ServiceUsecase) GetServiceStatus() (*models.Service, error) {
+	srvc, err := su.repo.SelectServiceStatus()
+	return srvc, err
+}
+
+func (su *ServiceUsecase) ClearService() error {
+	err := su.repo.ClearService()
 	return err
 }
-
-func (u *usecase) GetStatus(ctx context.Context) (models.Status, error) {
-	status, err := u.serviceRepository.GetStatus(ctx)
-	if err != nil {
-		return models.Status{}, err
-	}
-
-	return status, err
-}
-
-func NewUsecase(serviceRepository service.Repository) Usecase {
-	return &usecase{serviceRepository: serviceRepository}
-}
-

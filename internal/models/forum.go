@@ -1,29 +1,29 @@
 package models
 
 type Forum struct {
-	Title   string `json:"title"   db:"title"`
-	User    string `json:"user"    db:"user"`
-	Slug    string `json:"slug"    db:"slug"`
-	Posts   int    `json:"posts"   db:"posts"`
-	Threads int    `json:"threads" db:"threads"`
+	Title   string `json:"title"`
+	User    string `json:"user"`
+	Slug    string `json:"slug"`
+	Posts   int64  `json:"posts"`
+	Threads int64  `json:"threads"`
 }
 
-type CreateForum struct {
+type ForumInput struct {
 	Title string `json:"title"`
 	User  string `json:"user"`
 	Slug  string `json:"slug"`
 }
 
-type GetForumUsers struct {
-	Slug  string `json:"slug"`
-	Limit int64  `json:"limit"`
-	Since string `json:"since"`
-	Desc  bool   `json:"desc"`
+func (fi *ForumInput) ToForum(posts int64, threads int64) *Forum {
+	return &Forum{
+		Title:   fi.Title,
+		User:    fi.User,
+		Slug:    fi.Slug,
+		Posts:   posts,
+		Threads: threads,
+	}
 }
 
-type GetForumThreads struct {
-	Slug  string `json:"slug"`
-	Limit int64  `json:"limit"`
-	Since string `json:"since"`
-	Desc  bool   `json:"desc"`
+func (fi *ForumInput) ToDefaultForum() *Forum {
+	return fi.ToForum(0, 0)
 }

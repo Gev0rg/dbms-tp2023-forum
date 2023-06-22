@@ -1,13 +1,45 @@
-FROM golang:1.19-alpine
+FROM golang:1.17 AS build
 
-WORKDIR /build
+ADD . /app
+WORKDIR /app
+RUN go build ./cmd/main/main.go
 
-COPY go.mod .
+FROM ubuntu:20.04
 
-RUN go mod download
+RUN apt-get -y update &&\
+    apt-get install -y tzdata
+
+ENV POSTGRES_VERSION 12
+
+RUN apt-get -y update &&\
+    apt-get install -y postgresql-${POSTGRES_VERSION}
+
+USER postgres
+
+RUN /etc/init.d/postgresql start &&\
+    psql --command "CREATE USER gev WITH SUPERUSER PASSWORD 'gev';" &&\
+    createdb -O postgres gev &&\
+    /etc/init.d/postgresql stop
+
+RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/${POSTGRES_VERSION}/main/pg_hba.conf
+RUN echo "listen_addresses='*'" >> /etc/postgresql/${POSTGRES_VERSION}/main/postgresql.conf
+
+EXPOSE 5432
+
+VOLUME ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
+
+USER root
+
+WORKDIR /usr/src/app
 
 COPY . .
 
-RUN go build -o /api cmd/api/main.go
+COPY --from=build /app/main .
 
-ENTRYPOINT ["/api"]
+EXPOSE 5000
+
+ENV PGPASSWORD gev
+
+CMD service postgresql start &&\
+    psql -h localhost -d gev -U gev -p 5432 -a -q -f ./db/db.sql &&\
+    ./main

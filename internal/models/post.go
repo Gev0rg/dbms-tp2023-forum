@@ -1,31 +1,27 @@
 package models
 
-import "time"
-
 type Post struct {
-	Id       int       `json:"post_id" db:"post_id"`
-	Parent   int       `json:"parent" db:"parent"`
-	Author   string       `json:"author" db:"author"`
-	Message  string    `json:"message" db:"message"`
-	IsEdited bool      `json:"is_edited" db:"is_edited"`
-	Forum    string    `json:"forum" db:"forum"`
-	Thread   int       `json:"thread_id" db:"thread_id"`
-	Created  time.Time `json:"created" db:"created"`
+	Id       int64  `json:"id"`
+	Parent   int64  `json:"parent,omitempty"`
+	Author   string `json:"author"`
+	Message  string `json:"message"`
+	IsEdited bool   `json:"isEdited,omitempty"`
+	Forum    string `json:"forum"`
+	Thread   int64  `json:"thread"`
+	Created  string `json:"created"`
 }
 
-type CreatePost struct {
-	Parent  int    `json:"parent"`
+type PostInput struct {
+	Parent  int64  `json:"parent,omitempty"`
 	Author  string `json:"author"`
 	Message string `json:"message"`
 }
 
-type UpdatePost struct {
-	Message  string    `json:"message"`
+type PostsInput struct {
+	PI []*PostInput
 }
 
-type FullPost struct {
-	Post Post `json:"post"`
-	Author User `json:"author"`
-	Thread Thread `json:"thread"`
-	Forum Forum `json:"forum"`
+type PostUpdate struct {
+	Id      int64
+	Message string `json:"message"`
 }

@@ -1,42 +1,51 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Thread struct {
-	Id      int       `json:"thread_id" db:"thread_id"`
-	Title   string    `json:"title" db:"title"`
-	Author  string    `json:"author" db:"author"`
-	Forum   string    `json:"forum" db:"forum"`
-	Message string    `json:"message" db:"message"`
-	Votes   int       `json:"votes" db:"votes"`
-	Slug    string    `json:"slug" db:"slug"`
-	Created time.Time `json:"created" db:"created"`
+	Id      int64  `json:"id"`
+	Title   string `json:"title"`
+	Author  string `json:"author"`
+	Forum   string `json:"forum"`
+	Message string `json:"message"`
+	Votes   int64  `json:"votes"`
+	Slug    string `json:"slug"`
+	Created string `json:"created"`
 }
 
-type CreateThread struct {
-	Title   string    `json:"title"`
-	Author  string    `json:"author"`
-	Message string    `json:"message"`
-	Created time.Time `json:"created"`
+type ThreadInput struct {
+	Title   string `json:"title"`
+	Author  string `json:"author"`
+	Forum   string `json:"forum"`
+	Message string `json:"message"`
+	Slug    string `json:"slug"`
+	Created string `json:"created"`
 }
 
-type UpdateThread struct {
-	Title   string    `json:"title"`
-	Message string    `json:"message"`
+const (
+	Layout string = "2006-01-02T15:04:05.000-07:00"
+)
+
+func (ti *ThreadInput) ToThread(forumSlug string) *Thread {
+	dt := time.Now().Format(Layout)
+	if ti.Created == "" {
+		ti.Created = dt
+	}
+	return &Thread{
+		Title:   ti.Title,
+		Author:  ti.Author,
+		Forum:   forumSlug,
+		Message: ti.Message,
+		Slug:    ti.Slug,
+		Created: ti.Created,
+	}
 }
 
-type GetThreadPostsById struct {
-	Id    int64 `json:"id"`
-	Limit int64  `json:"limit"`
-	Since string `json:"since"`
-	Sort  string `json:"sort"`
-	Desc  bool   `json:"desc"`
-}
-
-type GetThreadPostsBySlug struct {
-	Slug  string `json:"slug"`
-	Limit int64  `json:"limit"`
-	Since string `json:"since"`
-	Sort  string `json:"sort"`
-	Desc  bool   `json:"desc"`
+type ThreadUpdate struct {
+	Id      int64
+	Slug    string
+	Message string `json:"message"`
+	Title   string `json:"title"`
 }
