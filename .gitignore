@@ -19,6 +19,7 @@ logs/
 .idea
 Dockerfile
 tech-db-forum.dat.gz
+tech-db-forum.best.txt
 
 
 # Dependency directories (remove the comment below to include it)
